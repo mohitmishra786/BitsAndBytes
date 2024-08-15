@@ -9,6 +9,6 @@
 # Object files (intermediate compilation results)
 *.obj
 
-# Build directories (if you use them)
+# Build directories
 bin/
 obj/
