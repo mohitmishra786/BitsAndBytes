@@ -1,0 +1,14 @@
+# Environment
+*.env
+
+# Executable files
+*.exe
+*.out
+*.o
+
+# Object files (intermediate compilation results)
+*.obj
+
+# Build directories (if you use them)
+bin/
+obj/
