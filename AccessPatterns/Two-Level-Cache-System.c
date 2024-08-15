@@ -5,7 +5,7 @@
 
 #define L1_CACHE_SIZE 64
 #define L2_CACHE_SIZE 256
-#define MAIN_MEMORY_SIZE 8192  // Increased from 4096
+#define MAIN_MEMORY_SIZE 8192
 #define BLOCK_SIZE 8
 
 typedef struct {
