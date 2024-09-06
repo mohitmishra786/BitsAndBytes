@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include <inttypes.h>  // Include for PRIu64 and PRIx64 macros
+#include <inttypes.h>
 
 #define PAGE_SIZE 4096
 #define PTE_PRESENT 0x1
