@@ -1,2 +1,2 @@
 # BitsAndBytes
-***Are we learning enough?*** **Nah.. first should be what is enough**
+***Are we learning enough?*** **Nah.. first we should ask "What is Enough"**
