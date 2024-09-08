@@ -1,150 +1,175 @@
-#include <iostream>
-#include <vector>
-#include <memory>
-#include <cstring>
-#include <algorithm>
-#include <random>
-#include <chrono>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
 
-class MemoryController {
-public:
-    static constexpr size_t MEMORY_SIZE = 1024 * 1024;
-    static constexpr size_t CACHE_SIZE = 64 * 1024;
-    static constexpr size_t CACHE_LINE_SIZE = 64;
-    static constexpr size_t NUM_CACHE_LINES = CACHE_SIZE / CACHE_LINE_SIZE;
+#define MEMORY_SIZE (1024 * 1024)
+#define CACHE_SIZE (64 * 1024)
+#define CACHE_LINE_SIZE 64
+#define NUM_CACHE_LINES (CACHE_SIZE / CACHE_LINE_SIZE)
+#define MAX_CACHE_SETS 4 // Assuming 4-way set associative
 
-    enum class AccessMode { Read, Write };
+typedef enum { Read, Write } AccessMode;
+typedef enum { LRU, Random } ReplacementPolicy;
 
-    enum class ReplacementPolicy { LRU, Random };
+typedef struct CacheLine {
+    unsigned char data[CACHE_LINE_SIZE];
+    size_t tag;
+    int dirty;
+    clock_t last_used;
+} CacheLine;
 
-    MemoryController() : 
-        main_memory_(std::make_unique<uint8_t[]>(MEMORY_SIZE)),
-        cache_(NUM_CACHE_LINES),
-        replacement_policy_(ReplacementPolicy::LRU),
-        rng_(std::chrono::system_clock::now().time_since_epoch().count()) {
-        std::cout << "Memory Controller initialized with " << MEMORY_SIZE << " bytes of main memory and "
-                  << CACHE_SIZE << " bytes of cache." << std::endl;
+typedef struct MemoryController {
+    unsigned char *main_memory;
+    CacheLine ***cache;
+    ReplacementPolicy replacement_policy;
+    unsigned long rng_seed;
+} MemoryController;
+
+// Function prototypes
+MemoryController* MemoryController_new();
+void MemoryController_free(MemoryController *mc);
+void MemoryController_access(MemoryController *mc, size_t address, AccessMode mode, unsigned char data);
+void MemoryController_setReplacementPolicy(MemoryController *mc, ReplacementPolicy policy);
+void MemoryController_displayCacheStatus(MemoryController *mc);
+
+MemoryController* MemoryController_new() {
+    MemoryController *mc = (MemoryController *)malloc(sizeof(MemoryController));
+    mc->main_memory = (unsigned char *)malloc(MEMORY_SIZE * sizeof(unsigned char));
+    mc->cache = (CacheLine ***)malloc(NUM_CACHE_LINES * sizeof(CacheLine **));
+    for (int i = 0; i < NUM_CACHE_LINES; i++) {
+        mc->cache[i] = (CacheLine **)malloc(MAX_CACHE_SETS * sizeof(CacheLine *));
+        for (int j = 0; j < MAX_CACHE_SETS; j++) {
+            mc->cache[i][j] = NULL;
+        }
+    }
+    mc->replacement_policy = LRU;
+    mc->rng_seed = (unsigned long)time(NULL);
+    printf("Memory Controller initialized with %zu bytes of main memory and %zu bytes of cache.\n", MEMORY_SIZE, CACHE_SIZE);
+    return mc;
+}
+
+void MemoryController_free(MemoryController *mc) {
+    for (int i = 0; i < NUM_CACHE_LINES; i++) {
+        for (int j = 0; j < MAX_CACHE_SETS; j++) {
+            if (mc->cache[i][j]) free(mc->cache[i][j]);
+        }
+        free(mc->cache[i]);
+    }
+    free(mc->cache);
+    free(mc->main_memory);
+    free(mc);
+}
+
+void MemoryController_access(MemoryController *mc, size_t address, AccessMode mode, unsigned char data) {
+    size_t cache_line = (address / CACHE_LINE_SIZE) % NUM_CACHE_LINES;
+    size_t tag = address / CACHE_LINE_SIZE;
+    size_t offset = address % CACHE_LINE_SIZE;
+
+    int cache_hit = 0;
+    for (int i = 0; i < MAX_CACHE_SETS; i++) {
+        if (mc->cache[cache_line][i] && mc->cache[cache_line][i]->tag == tag) {
+            cache_hit = 1;
+            mc->cache[cache_line][i]->last_used = clock();
+            if (mode == Read) {
+                printf("Cache hit! Read data: %d\n", mc->cache[cache_line][i]->data[offset]);
+            } else {
+                mc->cache[cache_line][i]->data[offset] = data;
+                mc->cache[cache_line][i]->dirty = 1;
+                printf("Cache hit! Wrote data: %d\n", data);
+            }
+            break;
+        }
     }
 
-    void access(size_t address, AccessMode mode, uint8_t data = 0) {
-        size_t cache_line = (address / CACHE_LINE_SIZE) % NUM_CACHE_LINES;
-        size_t tag = address / CACHE_LINE_SIZE;
-        size_t offset = address % CACHE_LINE_SIZE;
+    if (!cache_hit) {
+        printf("Cache miss. ");
+        CacheLine *new_entry = (CacheLine *)malloc(sizeof(CacheLine));
+        new_entry->tag = tag;
+        memcpy(new_entry->data, &mc->main_memory[address - offset], CACHE_LINE_SIZE);
 
-        bool cache_hit = false;
-        for (auto& entry : cache_[cache_line]) {
-            if (entry && entry->tag == tag) {
-                cache_hit = true;
-                updateLRU(entry);
-                if (mode == AccessMode::Read) {
-                    std::cout << "Cache hit! Read data: " << static_cast<int>(entry->data[offset]) << std::endl;
-                } else {
-                    entry->data[offset] = data;
-                    entry->dirty = true;
-                    std::cout << "Cache hit! Wrote data: " << static_cast<int>(data) << std::endl;
-                }
+        int empty_slot = -1;
+        for (int i = 0; i < MAX_CACHE_SETS; i++) {
+            if (mc->cache[cache_line][i] == NULL) {
+                empty_slot = i;
                 break;
             }
         }
 
-        if (!cache_hit) {
-            std::cout << "Cache miss. ";
-            auto new_entry = std::make_shared<CacheLine>();
-            new_entry->tag = tag;
-            std::memcpy(new_entry->data.data(), &main_memory_[address - offset], CACHE_LINE_SIZE);
-
-            if (cache_[cache_line].size() < 4) {  // 4-way set associative
-                cache_[cache_line].push_back(new_entry);
-            } else {
-                auto victim = chooseCacheLineToEvict(cache_[cache_line]);
-                if (victim->dirty) {
-                    writeBackToMemory(victim, (tag * NUM_CACHE_LINES + cache_line) * CACHE_LINE_SIZE);
+        if (empty_slot != -1) {
+            mc->cache[cache_line][empty_slot] = new_entry;
+        } else {
+            CacheLine **victim = &mc->cache[cache_line][0];
+            if (mc->replacement_policy == LRU) {
+                for (int i = 1; i < MAX_CACHE_SETS; i++) {
+                    if (mc->cache[cache_line][i]->last_used < (*victim)->last_used) {
+                        victim = &mc->cache[cache_line][i];
+                    }
                 }
-                *victim = *new_entry;
+            } else { // Random
+                srand(mc->rng_seed);
+                victim = &mc->cache[cache_line][rand() % MAX_CACHE_SETS];
+                mc->rng_seed++;
             }
 
-            if (mode == AccessMode::Read) {
-                std::cout << "Read data: " << static_cast<int>(new_entry->data[offset]) << std::endl;
+            if ((*victim)->dirty) {
+                memcpy(&mc->main_memory[((*victim)->tag * NUM_CACHE_LINES + cache_line) * CACHE_LINE_SIZE], (*victim)->data, CACHE_LINE_SIZE);
+                printf("Writing back dirty cache line to main memory at address %zu\n", ((*victim)->tag * NUM_CACHE_LINES + cache_line) * CACHE_LINE_SIZE);
+            }
+            free(*victim);
+            *victim = new_entry;
+        }
+
+        if (mode == Read) {
+            printf("Read data: %d\n", new_entry->data[offset]);
+        } else {
+            new_entry->data[offset] = data;
+            new_entry->dirty = 1;
+            printf("Wrote data: %d\n", data);
+        }
+    }
+}
+
+void MemoryController_setReplacementPolicy(MemoryController *mc, ReplacementPolicy policy) {
+    mc->replacement_policy = policy;
+    printf("Replacement policy set to %s\n", policy == LRU ? "LRU" : "Random");
+}
+
+void MemoryController_displayCacheStatus(MemoryController *mc) {
+    printf("\nCache Status:\n");
+    for (size_t i = 0; i < NUM_CACHE_LINES; ++i) {
+        printf("Set %zu: ", i);
+        for (int j = 0; j < MAX_CACHE_SETS; j++) {
+            if (mc->cache[i][j]) {
+                printf("[Tag: %zu, Dirty: %s] ", mc->cache[i][j]->tag, mc->cache[i][j]->dirty ? "Yes" : "No");
             } else {
-                new_entry->data[offset] = data;
-                new_entry->dirty = true;
-                std::cout << "Wrote data: " << static_cast<int>(data) << std::endl;
+                printf("[Empty] ");
             }
         }
+        printf("\n");
     }
-
-    void setReplacementPolicy(ReplacementPolicy policy) {
-        replacement_policy_ = policy;
-        std::cout << "Replacement policy set to " << (policy == ReplacementPolicy::LRU ? "LRU" : "Random") << std::endl;
-    }
-
-    void displayCacheStatus() const {
-        std::cout << "\nCache Status:" << std::endl;
-        for (size_t i = 0; i < NUM_CACHE_LINES; ++i) {
-            std::cout << "Set " << i << ": ";
-            for (const auto& entry : cache_[i]) {
-                if (entry) {
-                    std::cout << "[Tag: " << entry->tag << ", Dirty: " << (entry->dirty ? "Yes" : "No") << "] ";
-                } else {
-                    std::cout << "[Empty] ";
-                }
-            }
-            std::cout << std::endl;
-        }
-    }
-
-private:
-    struct CacheLine {
-        std::array<uint8_t, CACHE_LINE_SIZE> data;
-        size_t tag;
-        bool dirty = false;
-        std::chrono::steady_clock::time_point last_used = std::chrono::steady_clock::now();
-    };
-
-    std::unique_ptr<uint8_t[]> main_memory_;
-    std::vector<std::vector<std::shared_ptr<CacheLine>>> cache_;
-    ReplacementPolicy replacement_policy_;
-    std::mt19937 rng_;
-
-    void updateLRU(std::shared_ptr<CacheLine>& entry) {
-        entry->last_used = std::chrono::steady_clock::now();
-    }
-
-    std::shared_ptr<CacheLine> chooseCacheLineToEvict(std::vector<std::shared_ptr<CacheLine>>& cache_set) {
-        if (replacement_policy_ == ReplacementPolicy::LRU) {
-            return *std::min_element(cache_set.begin(), cache_set.end(),
-                [](const auto& a, const auto& b) { return a->last_used < b->last_used; });
-        } else {  // Random
-            std::uniform_int_distribution<> dis(0, cache_set.size() - 1);
-            return cache_set[dis(rng_)];
-        }
-    }
-
-    void writeBackToMemory(const std::shared_ptr<CacheLine>& victim, size_t address) {
-        std::memcpy(&main_memory_[address], victim->data.data(), CACHE_LINE_SIZE);
-        std::cout << "Writing back dirty cache line to main memory at address " << address << std::endl;
-    }
-};
+}
 
 int main() {
-    MemoryController mc;
+    MemoryController *mc = MemoryController_new();
 
-    mc.access(0, MemoryController::AccessMode::Write, 42);
-    mc.access(0, MemoryController::AccessMode::Read);
-    mc.access(64, MemoryController::AccessMode::Write, 100);
-    mc.access(128, MemoryController::AccessMode::Write, 200);
-    mc.access(0, MemoryController::AccessMode::Read);
+    MemoryController_access(mc, 0, Write, 42);
+    MemoryController_access(mc, 0, Read, 0);
+    MemoryController_access(mc, 64, Write, 100);
+    MemoryController_access(mc, 128, Write, 200);
+    MemoryController_access(mc, 0, Read, 0);
 
-    mc.displayCacheStatus();
+    MemoryController_displayCacheStatus(mc);
 
     // Change replacement policy
-    mc.setReplacementPolicy(MemoryController::ReplacementPolicy::Random);
+    MemoryController_setReplacementPolicy(mc, Random);
 
-    mc.access(1024, MemoryController::AccessMode::Write, 50);
-    mc.access(2048, MemoryController::AccessMode::Write, 75);
-    mc.access(64, MemoryController::AccessMode::Read);
+    MemoryController_access(mc, 1024, Write, 50);
+    MemoryController_access(mc, 2048, Write, 75);
+    MemoryController_access(mc, 64, Read, 0);
 
-    mc.displayCacheStatus();
+    MemoryController_displayCacheStatus(mc);
 
+    MemoryController_free(mc);
     return 0;
 }
