@@ -7,7 +7,7 @@
 #define CACHE_SIZE (64 * 1024)
 #define CACHE_LINE_SIZE 64
 #define NUM_CACHE_LINES (CACHE_SIZE / CACHE_LINE_SIZE)
-#define MAX_CACHE_SETS 4 // Assuming 4-way set associative
+#define MAX_CACHE_SETS 4
 
 typedef enum { Read, Write } AccessMode;
 typedef enum { LRU, Random } ReplacementPolicy;
@@ -26,7 +26,6 @@ typedef struct MemoryController {
     unsigned long rng_seed;
 } MemoryController;
 
-// Function prototypes
 MemoryController* MemoryController_new();
 void MemoryController_free(MemoryController *mc);
 void MemoryController_access(MemoryController *mc, size_t address, AccessMode mode, unsigned char data);
