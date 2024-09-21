@@ -123,5 +123,6 @@ Process* select_oom_victim(ProcessList *list) {
 void terminate_process(Process *victim) {
     printf("Simulating termination of process %d (%s)\n", victim->pid, victim->name);
     // In a real implementation, this would send a SIGKILL to the process
+    // But our use case is very simple, so let's leave this for now
     // kill(victim->pid, SIGKILL);
 }
