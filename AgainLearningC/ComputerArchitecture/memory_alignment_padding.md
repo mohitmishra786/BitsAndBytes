@@ -19,13 +19,13 @@
       int a;
       char b;
   };
-Manual Padding: Adding extra fields to manually align data.
+- Manual Padding: Adding extra fields to manually align data.
 
-Books
-"Computer Organization and Design" by David A. Patterson and John L. Hennessy
-ISBN: 978-0128017333 (Discusses memory systems including alignment)
+## Books
+- "Computer Organization and Design" by David A. Patterson and John L. Hennessy
+  - ISBN: 978-0128017333 (Discusses memory systems including alignment)
 
-Online Resources
-Memory Alignment: Detailed explanation on how and why memory alignment matters.
-Memory Alignment (www.geeksforgeeks.org/memory-alignment-in-c-struct-members-alignment-padding/)
+## Online Resources
+- **Memory Alignment**: Detailed explanation on how and why memory alignment matters.
+- **Memory Alignment** (www.geeksforgeeks.org/memory-alignment-in-c-struct-members-alignment-padding/)
 
