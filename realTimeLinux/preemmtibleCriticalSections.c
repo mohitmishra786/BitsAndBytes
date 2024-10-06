@@ -1,51 +1,102 @@
+
+#define _GNU_SOURCE
 #include <stdio.h>
+#include <stdlib.h>
 #include <pthread.h>
 #include <unistd.h>
-#include <time.h>
-#include <sched.h>
+#include <errno.h>
+#include <sys/syscall.h>
+#include <linux/futex.h>
 
-#define NUM_THREADS 5
-#define CRITICAL_SECTION_TIME 100000 // 100ms
+typedef struct {
+    int lock;
+    int owner;
+} rt_mutex_t;
 
-pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+int shared_counter = 0;
+rt_mutex_t my_lock = {0, -1};
 
-void *thread_function(void *arg) {
-    int thread_id = *(int*)arg;
-    struct timespec start, end;
-    
-    clock_gettime(CLOCK_MONOTONIC, &start);
-    
-    pthread_mutex_lock(&mutex);
-    printf("Thread %d entered critical section\n", thread_id);
-    
-    for (int i = 0; i < 10; i++) {
-        usleep(CRITICAL_SECTION_TIME / 10);
-        sched_yield();  // Simulate preemption point
-        printf("Thread %d in critical section, iteration %d\n", thread_id, i);
+static long sys_futex(void *addr1, int op, int val1, struct timespec *timeout, void *addr2, int val3) {
+    return syscall(SYS_futex, addr1, op, val1, timeout, addr2, val3);
+}
+
+void rt_mutex_init(rt_mutex_t *mutex) {
+    mutex->lock = 0;
+    mutex->owner = -1;
+}
+
+void rt_mutex_lock(rt_mutex_t *mutex) {
+    int tid = (int)syscall(SYS_gettid);
+    while (1) {
+        int expected = 0;
+        if (__sync_bool_compare_and_swap(&mutex->lock, expected, 1)) {
+            mutex->owner = tid;
+            break;
+        }
+        sys_futex(&mutex->lock, FUTEX_WAIT, 1, NULL, NULL, 0);
     }
-    
-    pthread_mutex_unlock(&mutex);
-    
-    clock_gettime(CLOCK_MONOTONIC, &end);
-    long long duration = (end.tv_sec - start.tv_sec) * 1000000000LL + (end.tv_nsec - start.tv_nsec);
-    
-    printf("Thread %d exited critical section. Total time: %lld ns\n", thread_id, duration);
-    
+}
+
+void rt_mutex_unlock(rt_mutex_t *mutex) {
+    mutex->owner = -1;
+    mutex->lock = 0;
+    sys_futex(&mutex->lock, FUTEX_WAKE, 1, NULL, NULL, 0);
+}
+
+void do_work(int id) {
+    usleep(rand() % 1000);
+    printf("Thread %d: Working...\n", id);
+}
+
+void critical_section(int id) {
+    printf("Thread %d: Entering critical section\n", id);
+    rt_mutex_lock(&my_lock);
+
+    printf("Thread %d: Inside critical section\n", id);
+    shared_counter++;
+    do_work(id);
+
+    printf("Thread %d: Preemption point (cond_resched)\n", id);
+    sched_yield();
+
+    do_work(id);
+    printf("Thread %d: Shared counter value: %d\n", id, shared_counter);
+
+    rt_mutex_unlock(&my_lock);
+    printf("Thread %d: Exiting critical section\n", id);
+}
+
+void* thread_func(void* arg) {
+    int id = *(int*)arg;
+    printf("Thread %d: Started\n", id);
+
+    for (int i = 0; i < 3; i++) {
+        critical_section(id);
+        usleep(rand() % 2000);
+    }
+
+    printf("Thread %d: Finished\n", id);
     return NULL;
 }
 
 int main() {
-    pthread_t threads[NUM_THREADS];
-    int thread_ids[NUM_THREADS];
-    
-    for (int i = 0; i < NUM_THREADS; i++) {
+    pthread_t threads[5];
+    int thread_ids[5];
+
+    printf("Main: Initializing RT-mutex\n");
+    rt_mutex_init(&my_lock);
+
+    printf("Main: Creating threads\n");
+    for (int i = 0; i < 5; i++) {
         thread_ids[i] = i;
-        pthread_create(&threads[i], NULL, thread_function, &thread_ids[i]);
+        pthread_create(&threads[i], NULL, thread_func, &thread_ids[i]);
     }
-    
-    for (int i = 0; i < NUM_THREADS; i++) {
+
+    printf("Main: Waiting for threads to finish\n");
+    for (int i = 0; i < 5; i++) {
         pthread_join(threads[i], NULL);
     }
-    
+
+    printf("Main: All threads finished. Final shared counter value: %d\n", shared_counter);
     return 0;
 }
