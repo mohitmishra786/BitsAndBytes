@@ -1,8 +1,3 @@
-/**
- * complete_queue.c
- * A comprehensive implementation of a circular queue data structure
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
