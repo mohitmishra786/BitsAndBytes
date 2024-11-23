@@ -1,0 +1,91 @@
+Binary Search Performance Test
+==============================
+
+Testing array size: 100
+------------------------
+Warming up...
+Starting C implementation test...
+Progress: 0%Progress: 10%Progress: 20%Progress: 30%Progress: 40%Progress: 50%Progress: 60%Progress: 70%Progress: 80%Progress: 90%Progress: 100%
+Starting Assembly implementation test...
+Progress: 0%Progress: 10%Progress: 20%Progress: 30%Progress: 40%Progress: 50%Progress: 60%Progress: 70%Progress: 80%Progress: 90%Progress: 100%
+
+Array size: 100
+Iterations: 100000
+
+C Implementation:
+Time: 0.007464 seconds
+Average cycles per search: 89.90
+Searches per second: 26795284.03
+
+Assembly Implementation:
+Time: 0.010066 seconds
+Average cycles per search: 120.82
+Searches per second: 19868865.49
+
+
+Testing array size: 1000
+------------------------
+Warming up...
+Starting C implementation test...
+Progress: 0%Progress: 10%Progress: 20%Progress: 30%Progress: 40%Progress: 50%Progress: 60%Progress: 70%Progress: 80%Progress: 90%Progress: 100%
+Starting Assembly implementation test...
+Progress: 0%Progress: 10%Progress: 20%Progress: 30%Progress: 40%Progress: 50%Progress: 60%Progress: 70%Progress: 80%Progress: 90%Progress: 100%
+
+Array size: 1000
+Iterations: 100000
+
+C Implementation:
+Time: 0.018778 seconds
+Average cycles per search: 225.36
+Searches per second: 10650761.53
+
+Assembly Implementation:
+Time: 0.005268 seconds
+Average cycles per search: 63.22
+Searches per second: 37965072.13
+
+
+Testing array size: 10000
+------------------------
+Warming up...
+Starting C implementation test...
+Progress: 0%Progress: 10%Progress: 20%Progress: 30%Progress: 40%Progress: 50%Progress: 60%Progress: 70%Progress: 80%Progress: 90%Progress: 100%
+Starting Assembly implementation test...
+Progress: 0%Progress: 10%Progress: 20%Progress: 30%Progress: 40%Progress: 50%Progress: 60%Progress: 70%Progress: 80%Progress: 90%Progress: 100%
+
+Array size: 10000
+Iterations: 100000
+
+C Implementation:
+Time: 0.008892 seconds
+Average cycles per search: 106.72
+Searches per second: 22492127.76
+
+Assembly Implementation:
+Time: 0.005063 seconds
+Average cycles per search: 60.77
+Searches per second: 39502271.38
+
+
+Testing array size: 100000
+------------------------
+Warming up...
+Starting C implementation test...
+Progress: 0%Progress: 10%Progress: 20%Progress: 30%Progress: 40%Progress: 50%Progress: 60%Progress: 70%Progress: 80%Progress: 90%Progress: 100%
+Starting Assembly implementation test...
+Progress: 0%Progress: 10%Progress: 20%Progress: 30%Progress: 40%Progress: 50%Progress: 60%Progress: 70%Progress: 80%Progress: 90%Progress: 100%
+
+Array size: 100000
+Iterations: 100000
+
+C Implementation:
+Time: 0.008009 seconds
+Average cycles per search: 96.12
+Searches per second: 24971906.61
+
+Assembly Implementation:
+Time: 0.006485 seconds
+Average cycles per search: 77.82
+Searches per second: 30840400.93
+
+

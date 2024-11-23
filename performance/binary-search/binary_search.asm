@@ -1,4 +1,3 @@
-; binary_search.asm
 section .text
 global binary_search_asm
 
@@ -8,12 +7,8 @@ global binary_search_asm
 ; esi = size
 ; edx = target value
 binary_search_asm:
-    push rbp
-    mov rbp, rsp
-    
-    xor rax, rax        ; left = 0
-    mov ecx, esi        ; right = size
-    dec ecx             ; right = size - 1
+    xor eax, eax        ; left = 0
+    lea ecx, [esi-1]    ; right = size - 1
     
 .loop:
     cmp eax, ecx        ; if left > right, exit
@@ -27,23 +22,18 @@ binary_search_asm:
     mov r9d, [rdi + r8*4]  ; r9d = arr[mid]
     cmp r9d, edx
     je .found           ; if equal, found the element
-    jl .greater         ; if less, search right half
     
-    ; Search left half
-    lea ecx, [r8-1]     ; right = mid - 1
-    jmp .loop
-    
-.greater:
-    lea eax, [r8+1]     ; left = mid + 1
+    ; Use conditional moves to avoid branches
+    lea r10d, [r8 + 1]  ; r10d = mid + 1
+    lea r11d, [r8 - 1]  ; r11d = mid - 1
+    cmovl eax, r10d     ; if arr[mid] < target, left = mid + 1
+    cmovg ecx, r11d     ; if arr[mid] > target, right = mid - 1
     jmp .loop
     
 .found:
     mov eax, r8d        ; return mid index
-    jmp .exit
+    ret
     
 .not_found:
     mov eax, -1         ; return -1
-    
-.exit:
-    pop rbp
     ret

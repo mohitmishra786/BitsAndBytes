@@ -1,0 +1,157 @@
+desc: (none)
+cmd: ./binary_search
+time_unit: i
+#-----------
+snapshot=0
+#-----------
+time=0
+mem_heap_B=0
+mem_heap_extra_B=0
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=1
+#-----------
+time=177529
+mem_heap_B=1024
+mem_heap_extra_B=8
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=2
+#-----------
+time=181433
+mem_heap_B=1472
+mem_heap_extra_B=64
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=3
+#-----------
+time=33517648
+mem_heap_B=1472
+mem_heap_extra_B=64
+mem_stacks_B=0
+heap_tree=detailed
+n2: 1472 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 1024 0x48E6BA3: _IO_file_doallocate (filedoalloc.c:101)
+  n1: 1024 0x48F5CDF: _IO_doallocbuf (genops.c:347)
+   n1: 1024 0x48F4F5F: _IO_file_overflow@@GLIBC_2.2.5 (fileops.c:744)
+    n1: 1024 0x48F36D4: _IO_new_file_xsputn (fileops.c:1243)
+     n1: 1024 0x48F36D4: _IO_file_xsputn@@GLIBC_2.2.5 (fileops.c:1196)
+      n1: 1024 0x48E8F1B: puts (ioputs.c:40)
+       n0: 1024 0x1090FE: main (in /home/chessman/Desktop/Projects/Github/BitsAndBytes/performance/binary-search/binary_search)
+ n1: 448 0x1092CA: run_performance_test (in /home/chessman/Desktop/Projects/Github/BitsAndBytes/performance/binary-search/binary_search)
+  n0: 448 0x109149: main (in /home/chessman/Desktop/Projects/Github/BitsAndBytes/performance/binary-search/binary_search)
+#-----------
+snapshot=4
+#-----------
+time=33517648
+mem_heap_B=1024
+mem_heap_extra_B=8
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=5
+#-----------
+time=33519348
+mem_heap_B=5056
+mem_heap_extra_B=64
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=6
+#-----------
+time=81053093
+mem_heap_B=5056
+mem_heap_extra_B=64
+mem_stacks_B=0
+heap_tree=detailed
+n2: 5056 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 4032 0x1092CA: run_performance_test (in /home/chessman/Desktop/Projects/Github/BitsAndBytes/performance/binary-search/binary_search)
+  n0: 4032 0x109149: main (in /home/chessman/Desktop/Projects/Github/BitsAndBytes/performance/binary-search/binary_search)
+ n1: 1024 0x48E6BA3: _IO_file_doallocate (filedoalloc.c:101)
+  n1: 1024 0x48F5CDF: _IO_doallocbuf (genops.c:347)
+   n1: 1024 0x48F4F5F: _IO_file_overflow@@GLIBC_2.2.5 (fileops.c:744)
+    n1: 1024 0x48F36D4: _IO_new_file_xsputn (fileops.c:1243)
+     n1: 1024 0x48F36D4: _IO_file_xsputn@@GLIBC_2.2.5 (fileops.c:1196)
+      n1: 1024 0x48E8F1B: puts (ioputs.c:40)
+       n0: 1024 0x1090FE: main (in /home/chessman/Desktop/Projects/Github/BitsAndBytes/performance/binary-search/binary_search)
+#-----------
+snapshot=7
+#-----------
+time=81053093
+mem_heap_B=1024
+mem_heap_extra_B=8
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=8
+#-----------
+time=81054812
+mem_heap_B=41024
+mem_heap_extra_B=64
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=9
+#-----------
+time=143587631
+mem_heap_B=41024
+mem_heap_extra_B=64
+mem_stacks_B=0
+heap_tree=detailed
+n2: 41024 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 40000 0x1092CA: run_performance_test (in /home/chessman/Desktop/Projects/Github/BitsAndBytes/performance/binary-search/binary_search)
+  n0: 40000 0x109149: main (in /home/chessman/Desktop/Projects/Github/BitsAndBytes/performance/binary-search/binary_search)
+ n1: 1024 0x48E6BA3: _IO_file_doallocate (filedoalloc.c:101)
+  n1: 1024 0x48F5CDF: _IO_doallocbuf (genops.c:347)
+   n1: 1024 0x48F4F5F: _IO_file_overflow@@GLIBC_2.2.5 (fileops.c:744)
+    n1: 1024 0x48F36D4: _IO_new_file_xsputn (fileops.c:1243)
+     n1: 1024 0x48F36D4: _IO_file_xsputn@@GLIBC_2.2.5 (fileops.c:1196)
+      n1: 1024 0x48E8F1B: puts (ioputs.c:40)
+       n0: 1024 0x1090FE: main (in /home/chessman/Desktop/Projects/Github/BitsAndBytes/performance/binary-search/binary_search)
+#-----------
+snapshot=10
+#-----------
+time=143587631
+mem_heap_B=1024
+mem_heap_extra_B=8
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=11
+#-----------
+time=143589369
+mem_heap_B=401024
+mem_heap_extra_B=64
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=12
+#-----------
+time=221290388
+mem_heap_B=401024
+mem_heap_extra_B=64
+mem_stacks_B=0
+heap_tree=peak
+n2: 401024 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 400000 0x1092CA: run_performance_test (in /home/chessman/Desktop/Projects/Github/BitsAndBytes/performance/binary-search/binary_search)
+  n0: 400000 0x109149: main (in /home/chessman/Desktop/Projects/Github/BitsAndBytes/performance/binary-search/binary_search)
+ n0: 1024 in 1 place, below massif's threshold (1.00%)
+#-----------
+snapshot=13
+#-----------
+time=221290388
+mem_heap_B=1024
+mem_heap_extra_B=8
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=14
+#-----------
+time=221293319
+mem_heap_B=0
+mem_heap_extra_B=0
+mem_stacks_B=0
+heap_tree=empty
