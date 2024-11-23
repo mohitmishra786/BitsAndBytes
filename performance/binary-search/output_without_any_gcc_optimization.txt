@@ -1,0 +1,56 @@
+
+Array size: 100
+Iterations: 100000
+
+C Implementation:
+Time: 0.020974 seconds
+Cycles: 251
+Cycles per element: 2.52
+
+Assembly Implementation:
+Time: 0.007073 seconds
+Cycles: 84
+Cycles per element: 0.85
+
+
+Array size: 1000
+Iterations: 100000
+
+C Implementation:
+Time: 0.019905 seconds
+Cycles: 240
+Cycles per element: 0.24
+
+Assembly Implementation:
+Time: 0.007331 seconds
+Cycles: 87
+Cycles per element: 0.09
+
+
+Array size: 10000
+Iterations: 100000
+
+C Implementation:
+Time: 0.015891 seconds
+Cycles: 191
+Cycles per element: 0.02
+
+Assembly Implementation:
+Time: 0.006875 seconds
+Cycles: 82
+Cycles per element: 0.01
+
+
+Array size: 100000
+Iterations: 100000
+
+C Implementation:
+Time: 0.018071 seconds
+Cycles: 217
+Cycles per element: -0.03
+
+Assembly Implementation:
+Time: 0.007590 seconds
+Cycles: 92
+Cycles per element: -0.01
+
