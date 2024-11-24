@@ -19,7 +19,6 @@
 #define SERVER_PORT 8000
 #define MAX_CONNECTIONS 1024
 
-// Event types for better event handling
 enum {
     EVENT_TYPE_ACCEPT = 0,
     EVENT_TYPE_READ,

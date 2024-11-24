@@ -6,20 +6,15 @@ int main() {
     struct conn_info *conn_table;
     int server_socket;
 
-    // Initialize connection table
     conn_table = init_conn_table();
 
-    // Initialize io_uring
     setup_io_uring(&ring);
 
-    // Setup listening socket
     server_socket = setup_listening_socket(SERVER_PORT);
     printf("Server listening on port %d\n", SERVER_PORT);
 
-    // Add initial accept request
     add_accept_request(&ring, server_socket, conn_table);
 
-    // Event loop
     while (1) {
         int ret = io_uring_submit_and_wait(&ring, 1);
         if (ret < 0) {
